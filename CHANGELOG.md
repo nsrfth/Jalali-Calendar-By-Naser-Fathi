@@ -10,6 +10,23 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-14
+
+### Fixed
+
+- Allow installation and activation on Nextcloud 35 by extending the
+  `info.xml` support range from 30–34 to 30–35. Previously, Nextcloud 35
+  rejected the app before it could run. The PHP range remains 8.1–8.5
+  for older Nextcloud releases; Nextcloud 35 itself requires PHP 8.3–8.5.
+
+### Added
+
+- A Nextcloud 35.0.1 CI integration job that installs the built app without
+  `--force` and checks authenticated pages, settings, frontend delivery,
+  off-day CRUD, per-user preferences, administrator permissions and CalDAV
+  discovery. Locally exercised with PHP 8.5.11 and SQLite. Browser rendering
+  and integrations with external calendar clients are not covered by this test.
+
 ## [0.5.0] - 2026-07-31
 
 ### Added
@@ -272,7 +289,8 @@ First release — read-only Jalali month view.
 - Month view only — no week or day view yet.
 - No Iranian holidays overlay yet.
 
-[Unreleased]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/releases/tag/v0.6.0
 [0.5.0]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/releases/tag/v0.5.0
 [0.4.2]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/releases/tag/v0.4.2
 [0.4.1]: https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi/releases/tag/v0.4.1

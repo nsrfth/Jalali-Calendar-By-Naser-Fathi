@@ -51,7 +51,7 @@ the next version.
 
 خودِ تقویم فقط خواندنی است. ساخت و ویرایش رویداد در نسخهٔ بعد افزوده می‌شود.
 	]]></description>
-	<version>0.5.0</version>
+	<version>0.6.0</version>
 	<licence>agpl</licence>
 	<author mail="fathi@post.com">Naser Fathi</author>
 	<namespace>JalaliCalendar</namespace>
@@ -70,8 +70,10 @@ the next version.
 		<!-- @nextcloud/vue 9 targets Nextcloud 31+, but the app bundles its own
 		     Vue 3 runtime and relies only on layout components and the
 		     long-standing colour CSS variables, so it also runs on 30.
-		     Verified against 30.0.17, 31.0.14, 32.0.13, 33.0.7 and 34.0.2. -->
-		<nextcloud min-version="30" max-version="34"/>
+		     Verified against 30.0.17, 31.0.14, 32.0.13, 33.0.7 and 34.0.2.
+		     Installation and HTTP smoke tests also pass on 35.0.1 with PHP
+		     8.5 and SQLite; see the Nextcloud integration job in test.yml. -->
+		<nextcloud min-version="30" max-version="35"/>
 	</dependencies>
 	<settings>
 		<admin>OCA\JalaliCalendar\Settings\AdminSettings</admin>

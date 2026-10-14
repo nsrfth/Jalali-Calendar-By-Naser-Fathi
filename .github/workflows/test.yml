@@ -59,3 +59,62 @@ jobs:
       - run: npm ci
 
       - run: npm run test:parity
+
+  nextcloud:
+    name: Nextcloud 35.0.1 installation and HTTP smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXTCLOUD_TEST_URL: http://127.0.0.1:18535
+      # Credentials belong only to this disposable CI instance.
+      NEXTCLOUD_TEST_PASSWORD: jalali-ci-test-only
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: make appstore
+
+      - name: Start a disposable Nextcloud with SQLite
+        run: |
+          docker run -d --name jalali-nextcloud-test \
+            -p 127.0.0.1:18535:80 \
+            -e SQLITE_DATABASE=nextcloud \
+            -e NEXTCLOUD_ADMIN_USER=admin \
+            -e NEXTCLOUD_ADMIN_PASSWORD="$NEXTCLOUD_TEST_PASSWORD" \
+            -e NEXTCLOUD_TRUSTED_DOMAINS=127.0.0.1 \
+            nextcloud:35.0.1-apache
+          for attempt in $(seq 1 90); do
+            if curl -fsS "$NEXTCLOUD_TEST_URL/status.php" | python3 -c \
+              'import json,sys; sys.exit(not json.load(sys.stdin).get("installed"))'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs jalali-nextcloud-test
+          exit 1
+
+      - name: Install and enable without bypassing version checks
+        run: |
+          docker cp build/sign/jalali_calendar jalali-nextcloud-test:/var/www/html/custom_apps/
+          docker exec jalali-nextcloud-test chown -R www-data:www-data /var/www/html/custom_apps/jalali_calendar
+          docker exec -u www-data jalali-nextcloud-test php occ app:enable jalali_calendar
+          docker exec -u www-data -e OC_PASS="$NEXTCLOUD_TEST_PASSWORD" \
+            jalali-nextcloud-test php occ user:add --password-from-env calendar-user
+          docker exec -u www-data jalali-nextcloud-test sh -c \
+            'find custom_apps/jalali_calendar/lib custom_apps/jalali_calendar/appinfo custom_apps/jalali_calendar/templates -name "*.php" -print0 | xargs -0 -n1 php -l'
+
+      - run: python3 scripts/smoke-nextcloud.py
+
+      - name: Collect failure details
+        if: failure()
+        run: |
+          docker logs jalali-nextcloud-test
+          docker exec jalali-nextcloud-test tail -c 20000 /var/www/html/data/nextcloud.log || true
+
+      - name: Remove the disposable instance and its volumes
+        if: always()
+        run: docker rm -fv jalali-nextcloud-test

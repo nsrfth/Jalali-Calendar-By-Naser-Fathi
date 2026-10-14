@@ -4,7 +4,7 @@
 -->
 # Jalali Calendar for Nextcloud
 
-**تقویم جلالی برای نکست‌کلاد**
+‏**تقویم جلالی برای نکست‌کلاد**
 
 Shows the calendars you already have in Nextcloud on a Persian (Jalali/Shamsi)
 month grid — correct Shamsi month and weekday names, a Saturday-first week,
@@ -17,7 +17,7 @@ a display layer; events are always stored as Gregorian/UTC.**
 
 ## Status
 
-**v0.2.0 — read-only calendar, with an administration page.**
+**v0.6.0 — read-only Jalali calendar, with Nextcloud 30–35 support.**
 
 - [x] Jalali month view of **everything the Calendar app shows**: your own
       calendars, webcal subscriptions, the birthday calendar, and
@@ -66,7 +66,7 @@ addresses for a phone or desktop client.
 days (default 09:00-17:00, Saturday to Wednesday). Hours outside them are
 shaded in the day and week views, which open scrolled to the working day.
 
-**Week start.** Saturday (شنبه, the Iranian default) or Sunday (یک‌شنبه).
+‏**Week start.** Saturday (شنبه, the Iranian default) or Sunday (یک‌شنبه).
 Applies to everyone on the server: the grid, its column headers and the
 weekend column all move together. Friday stays the weekend either way.
 
@@ -129,18 +129,24 @@ so a Deck board costs exactly one CalDAV request.
 
 ## Requirements
 
-- Nextcloud **30, 31 or 32**. The UI is built on `@nextcloud/vue` 9, which
+- Nextcloud **30–35**. The UI is built on `@nextcloud/vue` 9, which
   officially targets 31+, but the app bundles its own Vue 3 runtime and uses
   only layout components and long-standing colour variables. Verified running
   on 30.0.17; on 30 some spacing/colour details may differ from 31+.
-- PHP 8.1+
+- PHP **8.1–8.5**, subject to the requirements of your Nextcloud version.
+  Nextcloud 35 requires **PHP 8.3–8.5**.
 - Node 20+ and npm (to build from source)
+
+The Nextcloud 35 compatibility change was tested on **35.0.1 with PHP 8.5.11
+and SQLite**: normal activation, authenticated HTTP pages and APIs passed.
+The smoke test does not execute the frontend in a browser or validate an
+existing production deployment.
 
 ## Install from source
 
 ```bash
 git clone https://github.com/nsrfth/Jalali-Calendar-By-Naser-Fathi.git
-cd jalali_calendar
+cd Jalali-Calendar-By-Naser-Fathi
 npm ci
 npm run build
 ```
@@ -167,6 +173,14 @@ npm run test
 The suite covers the Jalali conversion helpers (leap years, month boundaries,
 Nowruz, grid construction) and the iCalendar parsing layer (recurrence
 expansion, `EXDATE`, overridden occurrences, all-day `DTEND` exclusivity).
+
+CI also installs the release package on a disposable **Nextcloud 35.0.1**
+instance with SQLite and enables it without `--force`. The HTTP smoke test
+checks login, the calendar page and deep links, administration and personal
+settings, off-day CRUD, user preferences, administrator permissions, delivery
+of the built frontend and authenticated CalDAV discovery.
+`scripts/smoke-nextcloud.py` writes test data; run it only against a disposable
+instance with the two test users configured as in `.github/workflows/test.yml`.
 
 Dates are built from *local* calendar fields, so the tests are run under
 several timezones in CI (`UTC`, `Asia/Tehran`, `America/New_York`). Run them
